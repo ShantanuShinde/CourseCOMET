@@ -12,10 +12,8 @@ if _openai_key is None:
     raise EnvironmentError("OPENAI_API_KEY is not set")
 _openai_secret = SecretStr(_openai_key)
 
-base_url = "https://api.puter.com/puterai/openai/v1/"
-
-llm1 = ChatOpenAI(model="gpt-4", api_key=_openai_secret, base_url=base_url)
-llm2 = ChatOpenAI(model="gpt-4", api_key=_openai_secret, base_url=base_url)
+o3_mini = ChatOpenAI(model="o3-mini", api_key=_openai_secret)
+gpt4o_mini = ChatOpenAI(model="gpt-4o-mini", api_key=_openai_secret)
 
 schema = """
 Table: courses
@@ -75,7 +73,7 @@ nl_system_prompt = "You generate natural language responses. You will be given a
                     "Have the html tables with proper borders as well. Do not add unnecessary spacing and newlines."
 
 checkpointer1 = InMemorySaver()
-sql_generator = create_agent(model=llm1, tools=[], system_prompt=sql_system_prompt, checkpointer=checkpointer1)
+sql_generator = create_agent(model=o3_mini, tools=[], system_prompt=sql_system_prompt, checkpointer=checkpointer1)
 config = {"configurable": {"thread_id": "1"}}
 def get_sql_query(user_input: str):
     for event in sql_generator.stream({"messages": [{"role": "user", "content": user_input}]}, config=config, stream_mode="values"):
@@ -83,7 +81,7 @@ def get_sql_query(user_input: str):
             return event["messages"][-1].content
         
 checkpointer2 = InMemorySaver()
-nl_generator = create_agent(model=llm2, tools=[], system_prompt=nl_system_prompt, checkpointer=checkpointer2)
+nl_generator = create_agent(model=gpt4o_mini, tools=[], system_prompt=nl_system_prompt, checkpointer=checkpointer2)
 
 def get_nl_response(question: str, sql_result):
     model_input = f"question: {question} SQL result: {sql_result}"
