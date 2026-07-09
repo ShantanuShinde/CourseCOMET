@@ -13,5 +13,4 @@ async def answer_question(request: Request):
     query = get_sql_query(question)
     result = get_query_results(query)
     response = get_nl_response(question, result)
-    print(response)
     return {"response" : response}
