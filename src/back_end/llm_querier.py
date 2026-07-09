@@ -72,7 +72,7 @@ sql_system_prompt = f"You are an expert PostgreSQL engineer.\
                     2. Give me information and ratings about professor Aaron Smith:\
                         SELECT * FROM professors p JOIN professor_remarks r ON p.name = r.prof_name WHERE p.name = 'AaronSmith';\
                     3. Get the average rating of professor Aaron Smith:\
-                        SELECT r.avg_rating FROM professors p JOIN professor_remarks r ON p.name = r.prof_name WHERE p.name = 'AaronSmith';\"
+                        SELECT r.avg_rating FROM professors p JOIN professor_remarks r ON p.name = r.prof_name WHERE p.name = 'AaronSmith';"
 
 nl_system_prompt = "You generate natural language responses. You will be given a question and a result from a SQL query relating to the question.\
                     If the query result is too big, ask for followup questions to get more specific answers. \
