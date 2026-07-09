@@ -1,20 +1,19 @@
-import getpass
 import os
-
-
-def _set_env(var: str):
-    if not os.environ.get(var):
-        os.environ[var] = getpass.getpass(f"{var}: ")
-
-
-_set_env("OPENAI_API_KEY")
-
-from langgraph.prebuilt import create_react_agent, chat_agent_executor
+from dotenv import load_dotenv
+from pydantic import SecretStr
+from langchain.agents import create_agent
 from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.memory import InMemorySaver
 
-llm1 = ChatOpenAI(model="gpt-4")
-llm2 = ChatOpenAI(model="gpt-4")
+load_dotenv()
+
+_openai_key = os.getenv("OPENAI_API_KEY")
+if _openai_key is None:
+    raise EnvironmentError("OPENAI_API_KEY is not set")
+_openai_secret = SecretStr(_openai_key)
+
+llm1 = ChatOpenAI(model="gpt-4", api_key=_openai_secret)
+llm2 = ChatOpenAI(model="gpt-4", api_key=_openai_secret)
 
 schema = """
 Table: courses
@@ -56,7 +55,7 @@ Foreign Key: (prof_name) → professors(name)
 This table gives remarks about the professors """
 
 
-sql_system_prompt = f"You are a My SQL query generator. You generate concise queries with DISTINCT keyword for the provided prompt, with out any code blocks or markdown formatting. \
+sql_system_prompt = f"You are a PostgreSQL query generator. You generate concise queries with DISTINCT keyword for the provided prompt, with out any code blocks or markdown formatting. \
                  Only give query, no other text. \
                  Also use full form of course titles. eg: NLP = Natural Language Processing \
                  Also always give SQL queries, no direct answers. \
@@ -71,10 +70,10 @@ nl_system_prompt = "You generate natural language responses. You will be given a
                     You need to convert the query result into natural language response and answer the question. If the result says 'Failed' or the it is empty\
                     reply saying that 'I cannot answer the question. Also answer as if taking to another person, don't mentioned implementation details. \
                     If the result has list of items or table of content, display it in html lists, tables and other tags accordingly." \
-                    "Have the html tables with proper borders as well."
+                    "Have the html tables with proper borders as well. Do not add unnecessary spacing and newlines."
 
 checkpointer1 = InMemorySaver()
-sql_generator = create_react_agent(model=llm1, tools=[], prompt=sql_system_prompt, checkpointer=checkpointer1)
+sql_generator = create_agent(model=llm1, tools=[], system_prompt=sql_system_prompt, checkpointer=checkpointer1)
 config = {"configurable": {"thread_id": "1"}}
 def get_sql_query(user_input: str):
     for event in sql_generator.stream({"messages": [{"role": "user", "content": user_input}]}, config=config, stream_mode="values"):
@@ -82,9 +81,9 @@ def get_sql_query(user_input: str):
             return event["messages"][-1].content
         
 checkpointer2 = InMemorySaver()
-nl_generator = create_react_agent(model=llm2, tools=[], prompt=nl_system_prompt, checkpointer=checkpointer2)
+nl_generator = create_agent(model=llm2, tools=[], system_prompt=nl_system_prompt, checkpointer=checkpointer2)
 
-def get_nl_response(question: str, sql_result: str):
+def get_nl_response(question: str, sql_result):
     model_input = f"question: {question} SQL result: {sql_result}"
     for event in nl_generator.stream({"messages": [{"role": "user", "content": model_input}]}, config=config, stream_mode="values"):
         if len(event["messages"][-1].response_metadata) != 0:

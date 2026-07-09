@@ -16,7 +16,7 @@ export async function POST(request: Request) {
 
 // Placeholder logic — you can replace this with actual call to Python backend
 async function getResponse(question: string): Promise<string> {
-    const res = await axios.post("http://127.0.0.1:5000/api/ask", 
+    const res = await axios.post("http://127.0.0.1:8000/api/ask", 
       { "question": question }, 
       { headers: { "Content-Type": "application/json" } });
     return res.data.response

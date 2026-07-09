@@ -1,6 +1,24 @@
-import mysql.connector
+import psycopg2
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 destructive_query_keywords = ['DELETE', 'DROP']
+
+def get_connection():
+    try:
+        connection = psycopg2.connect(
+            host="ep-ancient-meadow-atqyb536-pooler.c-9.us-east-1.aws.neon.tech",
+            database="utdacademicdb",
+            user="neondb_owner",
+            password=os.getenv("POSTGRES_PASSWORD"),
+            sslmode="require"
+        )
+        return connection
+    except Exception as e:
+        print(f"Error connecting to the database: {e}")
+        return None
 
 def get_query_results(query):
     try:
@@ -8,18 +26,16 @@ def get_query_results(query):
             if keyword in query.lower():
                 print("Attempted to execute destructive query!")
                 return 'Failed'
-        database = mysql.connector.connect(
-            host="localhost",
-            user="root",
-            password="test",
-            database="UTDAcademicData"
-            )
-        cursor = database.cursor()
+        connection = get_connection()
+        if connection is None:
+            return "Failed"
+        cursor = connection.cursor()
         cursor.execute(query)
         result = cursor.fetchall()
 
         cursor.close()
-        database.close()
+        connection.close()
         return result
-    except:
+    except Exception as e:
+        print(f"Error executing query: {e}")
         return "Failed"
