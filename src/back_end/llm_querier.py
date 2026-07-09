@@ -4,6 +4,7 @@ from pydantic import SecretStr
 from langchain.agents import create_agent
 from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.memory import InMemorySaver
+from torch import Use
 
 load_dotenv()
 
@@ -55,21 +56,31 @@ Foreign Key: (prof_name) → professors(name)
 This table gives remarks about the professors """
 
 
-sql_system_prompt = f"You are a PostgreSQL query generator. You generate concise queries with DISTINCT keyword for the provided prompt, with out any code blocks or markdown formatting. \
-                 Only give query, no other text. \
-                 Also use full form of course titles. eg: NLP = Natural Language Processing \
-                 Also always give SQL queries, no direct answers. \
-                 If just the first name of professor is passed, eg. Dung in Dung Hyunh, search the pattern in name accordingly.\
-                 Utilize keywords such as LIMIT for restricting size of result if asked to. \
-                 Do not give any destructive queries such as DROP or DELETE. \
-                 Use this schema for generating queries.\
-                 schema: {schema}"
+sql_system_prompt = f"You are an expert PostgreSQL engineer.\
+                    Rules:\
+                    - Use ONLY the tables and columns provided.\
+                    - Do NOT invent columns or tables.\
+                    - Use PostgreSQL syntax only.\
+                    - If a join is required, infer it from the foreign keys.\
+                    - Return ONLY the SQL query.\
+                    - Do not return any explanation or text.\
+                    - Do not return destructive queries (e.g., DROP, DELETE, UPDATE).\
+                    schema: {schema}\
+                    Here are few examples of how to write SQL queries based on the schema:\
+                    1. Get professors that teach NLP course:\
+                        SELECT DISTINCT p.name FROM professors p JOIN grades g ON p.name = g.prof_name JOIN courses c ON g.course_id = c.course_id WHERE c.title = 'Natural Language Processing';\
+                    2. Give me information and ratings about professor Aaron Smith:\
+                        SELECT * FROM professors p JOIN professor_remarks r ON p.name = r.prof_name WHERE p.name = 'AaronSmith';\
+                    3. Get the average rating of professor Aaron Smith:\
+                        SELECT r.avg_rating FROM professors p JOIN professor_remarks r ON p.name = r.prof_name WHERE p.name = 'AaronSmith';\"
+
 nl_system_prompt = "You generate natural language responses. You will be given a question and a result from a SQL query relating to the question.\
                     If the query result is too big, ask for followup questions to get more specific answers. \
                     DO NOT GIVE TOO BIG RESULTS, ALWAYS GIVE PARTIAL AND ASK QUESTION TO GET MORE SPECIFIC QUESTION. \
                     You need to convert the query result into natural language response and answer the question. If the result says 'Failed' or the it is empty\
                     reply saying that 'I cannot answer the question. Also answer as if taking to another person, don't mentioned implementation details. \
-                    If the result has list of items or table of content, display it in html lists, tables and other tags accordingly." \
+                    If the result has table of content, display it in html tables and other tags accordingly." \
+                    "For lists use bullet points." \
                     "Have the html tables with proper borders as well. Do not add unnecessary spacing and newlines."
 
 checkpointer1 = InMemorySaver()
