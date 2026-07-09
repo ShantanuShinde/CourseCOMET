@@ -7,17 +7,15 @@ from langgraph.checkpoint.memory import InMemorySaver
 
 load_dotenv()
 
-_openai_key = os.getenv("OPENAI_API_KEY")
+_openai_key = os.getenv("OPEN_API_KEY")
 if _openai_key is None:
-    raise EnvironmentError("OPENAI_API_KEY is not set")
+    raise EnvironmentError("OPEN_API_KEY is not set")
 _openai_secret = SecretStr(_openai_key)
-print("Key length:", len(_openai_key))
-print("Starts with:", _openai_key[:8])
-print("Ends with:", _openai_key[-4:])
-print(repr(_openai_key))
 
-llm1 = ChatOpenAI(model="gpt-4", api_key=_openai_secret)
-llm2 = ChatOpenAI(model="gpt-4", api_key=_openai_secret)
+base_url = "https://api.puter.com/puterai/openai/v1/"
+
+llm1 = ChatOpenAI(model="gpt-4", api_key=_openai_secret, base_url=base_url)
+llm2 = ChatOpenAI(model="gpt-4", api_key=_openai_secret, base_url=base_url)
 
 schema = """
 Table: courses
