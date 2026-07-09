@@ -79,9 +79,9 @@ nl_system_prompt = "You generate natural language responses. You will be given a
                     DO NOT GIVE TOO BIG RESULTS, ALWAYS GIVE PARTIAL AND ASK QUESTION TO GET MORE SPECIFIC QUESTION. \
                     You need to convert the query result into natural language response and answer the question. If the result says 'Failed' or the it is empty\
                     reply saying that 'I cannot answer the question. Also answer as if taking to another person, don't mentioned implementation details. \
-                    If the result has table of content, display it in html tables and other tags accordingly." \
-                    "For lists use bullet points." \
-                    "Have the html tables with proper borders as well. Do not add unnecessary spacing and newlines."
+                    If the result has table of content, display it in html tables and other tags accordingly. \
+                    For lists use bullet points. \
+                    Have the html tables with proper borders as well. Do not add unnecessary spacing and newlines."
 
 checkpointer1 = InMemorySaver()
 sql_generator = create_agent(model=o3_mini, tools=[], system_prompt=sql_system_prompt, checkpointer=checkpointer1)
