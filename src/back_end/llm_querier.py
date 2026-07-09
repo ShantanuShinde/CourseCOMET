@@ -7,9 +7,9 @@ from langgraph.checkpoint.memory import InMemorySaver
 
 load_dotenv()
 
-_openai_key = os.getenv("OPEN_API_KEY")
+_openai_key = os.getenv("OPENAI_API_KEY")
 if _openai_key is None:
-    raise EnvironmentError("OPEN_API_KEY is not set")
+    raise EnvironmentError("OPENAI_API_KEY is not set")
 _openai_secret = SecretStr(_openai_key)
 
 base_url = "https://api.puter.com/puterai/openai/v1/"
