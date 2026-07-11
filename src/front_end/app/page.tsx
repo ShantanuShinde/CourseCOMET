@@ -131,7 +131,7 @@ export default function ChatbotPage() {
               <Input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask about courses, professors, deadlines..."
+                placeholder="Ask about courses, professors, ratings..."
                 className="flex-1"
                 disabled={isLoading}
               />
