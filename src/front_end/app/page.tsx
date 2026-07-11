@@ -103,7 +103,7 @@ export default function ChatbotPage() {
         </div>
       </header>
 
-      <main className="flex-1 container mx-auto p-4 max-w-4xl">
+      <main className="flex-1 container mx-auto p-4">
         <Card className="flex flex-col h-[calc(100vh-12rem)] shadow-lg">
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {messages.map((message) => (
@@ -142,10 +142,6 @@ export default function ChatbotPage() {
           </form>
         </Card>
       </main>
-
-      <footer className="bg-gray-100 p-4 text-center text-gray-600 text-sm">
-        <p>© {new Date().getFullYear()} University of Texas at Dallas</p>
-      </footer>
     </div>
   )
 }
